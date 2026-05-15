@@ -1,0 +1,68 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform test artifacts
+terraform.tfvars
+*.tfvars
+*.tfvars.json
+
+# Plan files
+*.tfplan
+*.plan
+
+# Sensitive files
+*.pem
+*.key
+*.p12
+*.crt
+
+# Local CLI configs
+.aws/
+.azure/
+.gcp/
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# direnv
+.direnv/
+.envrc
+
+# Fish shell history/temp
+fish_history
+
+# Terratest / Go
+bin/
+coverage.out
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Misc
+tmp/
+temp/
+.cache/
