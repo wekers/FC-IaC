@@ -1,0 +1,17 @@
+Conteúdo: Valor vindo do arquivo terraform.tfvars 
+
+Meu Pet: Sr. really famous basilisk
+
+Valor booleano: false 
+
+Fruits: 3
+
+Name: Fernando 
+Age: 22
+
+Name: Fabio 
+Age: 23
+
+Name: Fernando 
+Age: 30
+
