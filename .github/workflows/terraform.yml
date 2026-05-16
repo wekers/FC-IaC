@@ -8,15 +8,15 @@ on:
 permissions:
   contents: read
 
-  env:
-  AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION:  ${{ secrets.AWS_REGION }}
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
 
-  ARM_CLIENT_ID:  ${{ secrets.ARM_CLIENT_ID }}
-  ARM_CLIENT_SECRET:  ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_TENANT_ID:  ${{ secrets.ARM_TENANT_ID }}
-  ARM_SUBSCRIPTION_ID:  ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
 jobs:
   terraform:
@@ -24,47 +24,39 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: "1.9.8"
-        
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform -chdir=aws/environments/dev init
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: "1.9.8"
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      run: terraform fmt -check -recursive
+      - name: Terraform Init
+        run: terraform -chdir=aws/environments/dev init
 
-    # Run all the test
-    - name: Terraform Tests
-      run: |
-        cd aws
-        directories=$(find . -type d -name "tests" -exec dirname {} \;)
-        for dir in $directories; do
-          echo "Running terraform test in $dir"
-          (cd "$dir" && terraform init && terraform test)
-        done
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform -chdir=aws/environments/dev plan -input=false
+      - name: Terraform Tests
+        run: |
+          cd aws
 
-      # On push to "main", build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-      # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: terraform -chdir=aws/environments/dev apply -auto-approve -input=false
+          directories=$(find . -type d -name "tests" -exec dirname {} \;)
 
+          for dir in $directories; do
+            echo "Running terraform test in $dir"
+            (cd "$dir" && terraform init && terraform test)
+          done
+
+      - name: Terraform Plan
+        run: terraform -chdir=aws/environments/dev plan -input=false
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform -chdir=aws/environments/dev apply -auto-approve -input=false
