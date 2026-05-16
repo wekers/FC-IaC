@@ -10,7 +10,6 @@ terraform {
     bucket         = "fernando-fullcycle-terraform"
     key            = "states/terraform.dev.tfstate"
     region         = "us-west-2"
-    profile        = "default"
     dynamodb_table = "tf-state-locking"
   }
 
