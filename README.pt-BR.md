@@ -73,8 +73,8 @@ EC2 Instances (Nginx via user_data)
 .
 ├── .github/
 │   └── workflows/
-│       ├── terraform.yml
-│       └── terraform-destroy.yml
+│       └── terraform.yml
+│
 │
 ├── aws/
 │   ├── environments/
