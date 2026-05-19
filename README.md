@@ -1,33 +1,35 @@
 # Infrastructure as Code Lab (Terraform + AWS CDK)
 
+[🇺🇸 English](README.md) | [🇧🇷 Português](README.pt-BR.md)
+
 ![Terraform](https://img.shields.io/badge/Terraform-1.8+-623CE4?logo=terraform)
 ![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazonaws)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=github-actions)
 ![Python](https://img.shields.io/badge/CDK-Python-blue?logo=python)
 
-Infraestrutura AWS modularizada utilizando Terraform e AWS CDK, explorando práticas modernas de Infrastructure as Code (IaC), automação cloud, testes automatizados e CI/CD.
+Modular AWS infrastructure using Terraform and AWS CDK, exploring modern Infrastructure as Code (IaC), cloud automation, automated testing, and CI/CD practices.
 
-O projeto cobre cenários reais de provisionamento, troubleshooting, integração contínua e evolução arquitetural utilizando abordagens declarativas (Terraform) e programáticas (AWS CDK).
-
----
-
-# Objetivo
-
-Este laboratório foi desenvolvido com foco em:
-
-- modularização de infraestrutura
-- boas práticas de Terraform
-- AWS CDK com Python
-- automação CI/CD
-- testes automatizados de infraestrutura
-- infraestrutura reproduzível
-- troubleshooting real
-- entendimento de tradeoffs em IaC
-- múltiplos ambientes e stacks
+This project covers real-world provisioning scenarios, troubleshooting, continuous integration, and architectural evolution using both declarative (Terraform) and programmatic (AWS CDK) approaches.
 
 ---
 
-# Conceitos Explorados
+# Purpose
+
+This lab was developed focusing on:
+
+- infrastructure modularization
+- Terraform best practices
+- AWS CDK with Python
+- CI/CD automation
+- automated infrastructure testing
+- reproducible infrastructure
+- real-world troubleshooting
+- understanding IaC tradeoffs
+- multiple environments and stacks
+
+---
+
+# Explored Concepts
 
 - Infrastructure as Code (IaC)
 - Terraform Modules
@@ -45,7 +47,7 @@ Este laboratório foi desenvolvido com foco em:
 
 ---
 
-# Arquitetura
+# Architecture
 
 ```text
 Internet
@@ -65,7 +67,7 @@ EC2 Instances (Nginx via user_data)
 
 ---
 
-# Estrutura do Projeto
+# Project Structure
 
 ```text
 .
@@ -95,7 +97,7 @@ EC2 Instances (Nginx via user_data)
 
 ---
 
-# Tecnologias Utilizadas
+# Technologies Used
 
 - Terraform
 - AWS
@@ -114,9 +116,9 @@ EC2 Instances (Nginx via user_data)
 
 # Terraform Infrastructure
 
-O projeto utiliza Terraform para provisionamento declarativo da infraestrutura AWS.
+The project uses Terraform for declarative AWS infrastructure provisioning.
 
-## Recursos Provisionados
+## Provisioned Resources
 
 - VPC
 - Public Subnets
@@ -133,17 +135,17 @@ O projeto utiliza Terraform para provisionamento declarativo da infraestrutura A
 
 # AWS CDK
 
-O projeto também explora AWS CDK utilizando Python, demonstrando:
+The project also explores AWS CDK using Python, demonstrating:
 
 - constructs
 - CloudFormation synthesis
-- múltiplas stacks
-- múltiplas contas AWS
-- infraestrutura imperativa
-- abstrações programáticas
-- modularização utilizando Python
+- multiple stacks
+- multiple AWS accounts
+- imperative infrastructure
+- programmatic abstractions
+- Python-based modularization
 
-## Exemplo de múltiplas stacks
+## Example of multiple stacks
 
 ```python
 WebsiteStack(
@@ -171,32 +173,40 @@ WebsiteStack(
 
 # Remote State
 
-O projeto utiliza backend remoto S3 para compartilhamento de state.
+The project uses an S3 backend for Terraform remote state sharing.
 
-## Benefícios
+## Benefits
 
-- state compartilhado entre ambientes
-- integração com CI/CD
-- persistência centralizada
-- colaboração em equipe
+- shared state between environments
+- CI/CD integration
+- centralized persistence
+- team collaboration
 
 ## Locking
 
-O DynamoDB é utilizado para lock do state Terraform.
+DynamoDB is used for Terraform state locking.
 
-Isso evita:
+This prevents:
 
 - race conditions
-- corrupção de state
-- applies simultâneos
+- state corruption
+- simultaneous applies
+
+---
+
+## Backend Bootstrap
+
+The S3 backend bucket and DynamoDB locking table must exist before running `terraform init`.
+
+This is a common Terraform bootstrap requirement, since Terraform cannot provision the remote backend before initializing itself.
 
 ---
 
 # CI/CD
 
-Pipeline automatizado utilizando GitHub Actions.
+Automated pipeline using GitHub Actions.
 
-## Fluxo atual
+## Current Flow
 
 ```text
 checkout
@@ -214,11 +224,11 @@ terraform apply
 
 - `terraform.yml`
 
-### GitHub Actions Pipeline:
+### GitHub Actions Pipeline
 
 ![](https://raw.githubusercontent.com/wekers/FC-IaC/refs/heads/main/assets/github-actions-pipeline.png)
 
-## Secrets utilizados
+## Secrets used
 
 ### AWS
 
@@ -237,19 +247,19 @@ terraform apply
 
 # Terraform Tests
 
-O projeto utiliza:
+The project uses:
 
-- testes unitários
-- testes de integração
-- validação HTTP real
+- unit tests
+- integration tests
+- real HTTP validation
 
-## Testes implementados
+## Tests implemented
 
 ### Network Module
 
-Valida:
+Check:
 
-- criação da VPC
+- VPC creation
 - CIDR blocks
 - subnets
 - tags
@@ -257,13 +267,13 @@ Valida:
 
 ### Cluster Module
 
-Valida:
+Check:
 
 - ALB
 - ASG
 - Launch Template
 - bootstrap EC2
-- aplicação HTTP funcionando
+- HTTP application working
 - health checks
 
 ### Terraform Integration Tests
@@ -272,232 +282,146 @@ Valida:
 
 ---
 
-# Principais Aprendizados
+# Main Learnings
 
 ## `count` vs `for_each`
 
-Inicialmente os recursos utilizavam `count`.
+Initially, the resources used `count`.
 
-Posteriormente houve migração para `for_each`.
+Later, they were migrated to `for_each`.
 
-### Benefícios do `for_each`
+### Benefits of `for_each`
 
-- maior estabilidade de recursos
-- evita recreações inesperadas
-- melhor rastreabilidade
+- greater resource stability
+- avoids unexpected recreations
+- improved traceability
 
 ### Tradeoff
 
-Recursos deixam de ser listas e passam a ser mapas/objetos.
-
-Exemplo:
-
-```hcl
-aws_subnet.subnets["10.0.0.0/24"]
-```
-
-ao invés de:
-
-```hcl
-aws_subnet.subnets[0]
-```
-
-Impactando:
-
-- testes
-- outputs
-- referências internas
+Resources stop being lists and become maps/objects.
 
 ---
 
-# Problemas Reais Encontrados
+# Real Problems Encountered
 
 ## Terraform Test + `for_each`
 
-Após migrar de `count` para `for_each`, os testes falharam devido à mudança estrutural dos recursos.
+After migrating from `count` to `for_each`, tests failed due to structural changes in the resources.
 
-### Solução
+## ALB + ASG Timing
 
-Uso de:
+HTTP tests initially failed due to:
 
-```hcl
-values(...)
-```
+- EC2 initialization
+- `user_data` execution
+- nginx installation
+- health checks timing
 
-e acesso por chave.
+## Orphan Resources After `Ctrl+C`
 
----
-
-## Timing de ALB + ASG
-
-Os testes HTTP falhavam inicialmente devido ao tempo necessário para:
-
-- EC2 inicializar
-- `user_data` executar
-- nginx instalar
-- health checks passarem
-
-### Solução
-
-- aumento de retries
-- remoção de `yum update -y`
-- ajuste de timeouts
-
----
-
-## Recursos órfãos após `Ctrl+C`
-
-Interrupções durante `terraform test` deixaram recursos órfãos:
+Interrupting `terraform test` left orphan resources behind:
 
 - launch templates
 - target groups
 - load balancers
 
-### Aprendizado
-
-Testes Terraform criam infraestrutura real.
-
-Necessário:
-
-- teardown adequado
-- nomes randômicos
-- limpeza manual em alguns cenários
-
 ---
 
-# Tradeoffs do Terraform Test
+# Tradeoffs of Terraform Testing
 
-## Prós
+## Pros
 
-- valida infraestrutura real
-- testes E2E
-- detecta regressões
-- maior confiança em mudanças
+- validates actual infrastructure
+- end-to-end testing
+- detects regressions
+- greater confidence in changes
 
-## Contras
+## Cons
 
-- lento
-- custo real na cloud
-- debugging mais difícil
+- slow
+- actual cloud costs
+- more difficult debugging
 - timing/eventual consistency
-- risco de recursos órfãos
+- risk of orphaned resources
 
 ---
 
-# Segurança
+# Security
 
-## Melhorias futuras planejadas
+## Planned future improvements
 
-- OIDC no GitHub Actions
-- remoção de secrets estáticos
+- OIDC in GitHub Actions
+- Removal of static secrets
 - IAM least privilege
-- roles específicas por ambiente
+- Environment-specific roles
 
 ---
 
-# Melhorias Futuras
+# Global Future Improvements
 
 - Terratest (Go)
-- observabilidade
-- métricas e logs
-- múltiplos ambientes
-- módulos reutilizáveis
-- blue/green deployments
+- observability
+- metrics and logs
+- reusable modules
 - OIDC federation
-- testes de drift
-- policy as code
-- integração com Kubernetes
+- Kubernetes integration
 
 ---
 
-# Como Executar
+# How to Run
 
 ## Terraform
 
-### Inicializar
-
 ```bash
-terraform init
+$ terraform init
+$ terraform validate
+$ terraform plan
+$ terraform apply
+$ terraform test
 ```
-
-### Validar
-
-```bash
-terraform validate
-```
-
-### Planejar
-
-```bash
-terraform plan
-```
-
-### Aplicar
-
-```bash
-terraform apply
-```
-
-### Executar testes
-
-```bash
-terraform test
-```
-
----
 
 ## AWS CDK
 
-### Instalar dependências
-
 ```bash
-pip install -r requirements.txt
-```
-
-### Sintetizar template
-
-```bash
-cdk synth
-```
-
-### Deploy
-
-```bash
-cdk deploy
+$ npm install -g aws-cdk
+$ cdk --version
+$ cdk bootstrap aws://User-ID/Region
+$ cdk init app --language python
+$ pip install -r requirements.txt
+$ cdk synth
+$ cdk deploy
 ```
 
 ---
 
-# Observações
+# Notes
 
-Este projeto possui finalidade educacional/laboratorial, buscando simular cenários encontrados em ambientes reais de engenharia de plataforma, cloud, DevOps e automação de infraestrutura.
+This project has an educational/laboratory purpose while aiming to simulate real-world platform engineering, cloud, DevOps, and infrastructure automation scenarios.
 
 ---
 
-# Estudos, Implementação e Expansão
+# Studies, Implementation and Expansion
 
 Fernando Gilli
 
 ---
 
-# Créditos
+# Credits
 
-## Módulo Infra as Code — MBA Arquitetura Full Cycle
+## Infrastructure as Code Module — Full Cycle Architecture MBA
 
-Conteúdo desenvolvido durante o módulo de Infrastructure as Code (IaC).
-
-### Professor/Tutor
+### Professor / Tutor
 
 Igor Gomes  
 https://www.linkedin.com/in/igorgomesoliveira/
 
-O projeto foi expandido progressivamente ao longo do módulo, incluindo:
+The project was progressively expanded throughout the module, including:
 
-- testes automatizados com `terraform test`
-- CI/CD com GitHub Actions
-- validação HTTP E2E
-- troubleshooting real de infraestrutura
-- documentação de tradeoffs e aprendizados
-- modularização avançada
-- integração entre módulos Terraform
-- múltiplas stacks com AWS CDK
+- automated testing with `terraform test`
+- CI/CD with GitHub Actions
+- end-to-end (E2E) HTTP validation
+- real-world infrastructure troubleshooting
+- documentation of trade-offs and lessons learned
+- advanced modularization
+- integration between Terraform modules
+- multiple stacks with AWS CDK
