@@ -10,89 +10,91 @@ class Network:
         subnets_cidr_block: list[str],
     ) -> None:
 
-        self.vpc = ec2.CfnVPC(
-            stack,
-            f"{prefix}vpc",
-            cidr_block=vpc_cidr_block,
-            tags=[CfnTag(key="Name", value=f"{prefix}vpc")],
-        )
+        self.vpc = ec2.Vpc(stack, f"{prefix}vpc", cidr=vpc_cidr_block)
 
-        igw = ec2.CfnInternetGateway(stack, f"{prefix}igw")
+        # self.vpc = ec2.CfnVPC(
+        #     stack,
+        #     f"{prefix}vpc",
+        #     cidr_block=vpc_cidr_block,
+        #     tags=[CfnTag(key="Name", value=f"{prefix}vpc")],
+        # )
 
-        ec2.CfnVPCGatewayAttachment(
-            stack,
-            f"{prefix}igwattachment",
-            vpc_id=self.vpc.attr_vpc_id,
-            internet_gateway_id=igw.attr_internet_gateway_id,
-        )
+        # igw = ec2.CfnInternetGateway(stack, f"{prefix}igw")
 
-        route_table = ec2.CfnRouteTable(
-            stack,
-            f"{prefix}routetable",
-            vpc_id=self.vpc.attr_vpc_id,
-        )
+        # ec2.CfnVPCGatewayAttachment(
+        #     stack,
+        #     f"{prefix}igwattachment",
+        #     vpc_id=self.vpc.attr_vpc_id,
+        #     internet_gateway_id=igw.attr_internet_gateway_id,
+        # )
 
-        ec2.CfnRoute(
-            stack,
-            f"{prefix}internetroute",
-            route_table_id=route_table.attr_route_table_id,
-            gateway_id=igw.attr_internet_gateway_id,
-            destination_cidr_block="0.0.0.0/0",
-        )
+        # route_table = ec2.CfnRouteTable(
+        #     stack,
+        #     f"{prefix}routetable",
+        #     vpc_id=self.vpc.attr_vpc_id,
+        # )
 
-        self.subnets = []
+        # ec2.CfnRoute(
+        #     stack,
+        #     f"{prefix}internetroute",
+        #     route_table_id=route_table.attr_route_table_id,
+        #     gateway_id=igw.attr_internet_gateway_id,
+        #     destination_cidr_block="0.0.0.0/0",
+        # )
 
-        max_azs = 3
+        # self.subnets = []
 
-        for index, block in enumerate(subnets_cidr_block):
+        # max_azs = 3
 
-            az = Fn.select(index % max_azs, Fn.get_azs())
+        # for index, block in enumerate(subnets_cidr_block):
 
-            subnet = ec2.CfnSubnet(
-                stack,
-                f"{prefix}-subnet{index}",
-                vpc_id=self.vpc.attr_vpc_id,
-                cidr_block=block,
-                availability_zone=az,
-                tags=[CfnTag(key="Name", value=f"{prefix}subnet-{index}")],
-            )
+        #     az = Fn.select(index % max_azs, Fn.get_azs())
 
-            ec2.CfnSubnetRouteTableAssociation(
-                stack,
-                f"{prefix}rtassociation{index}",
-                route_table_id=route_table.attr_route_table_id,
-                subnet_id=subnet.attr_subnet_id,
-            )
+        #     subnet = ec2.CfnSubnet(
+        #         stack,
+        #         f"{prefix}-subnet{index}",
+        #         vpc_id=self.vpc.attr_vpc_id,
+        #         cidr_block=block,
+        #         availability_zone=az,
+        #         tags=[CfnTag(key="Name", value=f"{prefix}subnet-{index}")],
+        #     )
 
-            self.subnets.append(subnet)
+        #     ec2.CfnSubnetRouteTableAssociation(
+        #         stack,
+        #         f"{prefix}rtassociation{index}",
+        #         route_table_id=route_table.attr_route_table_id,
+        #         subnet_id=subnet.attr_subnet_id,
+        #     )
 
-        self.security_group = ec2.CfnSecurityGroup(
-            stack,
-            f"{prefix}sg",
-            group_name=f"{prefix}allow-ssh-http",
-            group_description=f"{prefix}allow-ssh-http",
-            vpc_id=self.vpc.attr_vpc_id,
-            security_group_ingress=[
-                ec2.CfnSecurityGroup.IngressProperty(
-                    cidr_ip="0.0.0.0/0",
-                    from_port=22,
-                    to_port=22,
-                    ip_protocol="tcp",
-                    description="Allow SSH",
-                ),
-                ec2.CfnSecurityGroup.IngressProperty(
-                    cidr_ip="0.0.0.0/0",
-                    from_port=80,
-                    to_port=80,
-                    ip_protocol="tcp",
-                    description="Allow HTTP",
-                ),
-            ],
-            security_group_egress=[
-                ec2.CfnSecurityGroup.EgressProperty(
-                    cidr_ip="0.0.0.0/0",
-                    ip_protocol="-1",
-                    description="Allow Egress",
-                )
-            ],
-        )
+        #     self.subnets.append(subnet)
+
+        # self.security_group = ec2.CfnSecurityGroup(
+        #     stack,
+        #     f"{prefix}sg",
+        #     group_name=f"{prefix}allow-ssh-http",
+        #     group_description=f"{prefix}allow-ssh-http",
+        #     vpc_id=self.vpc.attr_vpc_id,
+        #     security_group_ingress=[
+        #         ec2.CfnSecurityGroup.IngressProperty(
+        #             cidr_ip="0.0.0.0/0",
+        #             from_port=22,
+        #             to_port=22,
+        #             ip_protocol="tcp",
+        #             description="Allow SSH",
+        #         ),
+        #         ec2.CfnSecurityGroup.IngressProperty(
+        #             cidr_ip="0.0.0.0/0",
+        #             from_port=80,
+        #             to_port=80,
+        #             ip_protocol="tcp",
+        #             description="Allow HTTP",
+        #         ),
+        #     ],
+        #     security_group_egress=[
+        #         ec2.CfnSecurityGroup.EgressProperty(
+        #             cidr_ip="0.0.0.0/0",
+        #             ip_protocol="-1",
+        #             description="Allow Egress",
+        #         )
+        #     ],
+        # )
