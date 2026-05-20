@@ -1,3 +1,7 @@
+# *** Warning ***
+# -> I recommend not using it, but if you do, make sure you understand what it does and that you have a backup of your data.
+# *** Be very careful — this will delete everything without warning ***
+
 name: terraform-destroy
 
 on:
