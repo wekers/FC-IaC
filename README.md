@@ -300,6 +300,24 @@ Later, they were migrated to `for_each`.
 
 Resources stop being lists and become maps/objects.
 
+Example:
+
+```hcl
+aws_subnet.subnets[“10.0.0.0/24”]
+```
+
+instead of:
+
+```hcl
+aws_subnet.subnets[0]
+```
+
+Impact:
+
+- tests
+- outputs
+- internal references
+
 ---
 
 # Real Problems Encountered
@@ -307,6 +325,18 @@ Resources stop being lists and become maps/objects.
 ## Terraform Test + `for_each`
 
 After migrating from `count` to `for_each`, tests failed due to structural changes in the resources.
+
+### Solution
+
+Use:
+
+```hcl
+values(...)
+```
+
+and access by key.
+
+---
 
 ## ALB + ASG Timing
 
@@ -317,6 +347,14 @@ HTTP tests initially failed due to:
 - nginx installation
 - health checks timing
 
+### Solution
+
+- Increase the number of retries
+- Remove `yum update -y`
+- Adjust timeouts
+
+---
+
 ## Orphan Resources After `Ctrl+C`
 
 Interrupting `terraform test` left orphan resources behind:
@@ -324,6 +362,16 @@ Interrupting `terraform test` left orphan resources behind:
 - launch templates
 - target groups
 - load balancers
+
+### Lessons Learned
+
+Terraform tests create actual infrastructure.
+
+Requirements:
+
+- Proper teardown
+- Randomized names
+- Manual cleanup in some scenarios
 
 ---
 
